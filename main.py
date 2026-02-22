@@ -4,16 +4,16 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 
-TOKEN = "8019982514:AAFGVa5iPpp__gmh7ksvS43zrJhmYIy3PMU"
+TOKEN = "INSERT YOUR TOKEN"
 bot = telebot.TeleBot(TOKEN)
-ADMIN_ID = 6601944801
+ADMIN_ID = "CHOOSE YOUR ID"
 #табличечка
 scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name("telegram_bot/telegrambotproject-488220-a7fc4e6fa52d.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name("SELECT YOUR KEY", scope)
 client = gspread.authorize(creds)
 
-sheet = client.open_by_key("1T6-e0zrmZKHkJ6v3xv_vq0i7hd3jT6K0Cifd4Svy2Zk").sheet1
+sheet = client.open_by_key("YOUR GOOGLE SHEET LINK").sheet1
 
 teams = ["Команда 1","Команда 2","Команда 3","Команда 4", "Команда 5","Команда 6","Команда 7","Команда 8"]
 
