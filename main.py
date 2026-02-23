@@ -84,5 +84,70 @@ def send_broadcast(message):
         except:
             failed += 1
     bot.send_message(message.chat.id, f"✅ Рассылка завершена\n" f"Отправлено: {sent}\n" f"Не доставлено: {failed}")
-    
+
+@bot.message_handler(commands=['addpoints'])
+def adding(message):
+    if message.from_user.id != ADMIN_ID:
+        bot.send_message(message.chat.id, "❌ У тебя нет прав.")
+        return
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    for team in teams:
+        markup.add(types.KeyboardButton(team))
+    msg = bot.send_message(message.chat.id, "Выбери команду:", reply_markup=markup)
+    bot.register_next_step_handler(msg, select_team_for_points)
+
+def select_team_for_points(message):
+    if message.text not in teams:
+        return
+    admin_data[message.from_user.id] = message.text
+    msg = bot.send_message(message.chat.id, "Введи количество очков:", reply_markup=types.ReplyKeyboardRemove())
+    bot.register_next_step_handler(msg, enter_points_amount)
+
+def enter_points_amount(message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    if not message.text.isdigit():
+        return
+    points_to_add = int(message.text)
+    team_name = admin_data.get(message.from_user.id)
+    try:
+        cell = sheet_2.find(team_name)
+        row = cell.row
+        current = sheet_2.cell(row, 2).value
+        current_points = int(current) if current else 0
+        new_points = current_points + points_to_add
+        sheet_2.update_cell(row, 2, new_points)
+        # оформление написал чат гпт
+        bot.send_message(message.chat.id, f"Команда <b>{team_name}</b> получила <b>{points_to_add}</b> очков!\n" f"Теперь у неё: <b>{new_points}</b> очков", parse_mode="HTML")
+    except Exception as e:
+        print("ADD POINTS ERROR:", e)
+        bot.send_message(message.chat.id, "ОШИБКА")
+
+@bot.message_handler(commands=["info"])
+def show_teams(message):
+    try:
+        points_and_teams = []
+        for i in range(2, 10):
+            row = sheet_2.row_values(i)
+            if len(row) >= 2:
+                team_name = row[0]
+                points = int(row[1]) if row[1] else 0
+                points_and_teams.append([team_name, points])
+        points_and_teams.sort(key=lambda x: -x[1])
+        #тут я использовал чат гпт, потому что в падлу оформлением заниматься
+        medals = ["🥇", "🥈", "🥉"]
+        text = "🏆 <b>Таблица лидеров</b>\n\n"
+        for index, (team, points) in enumerate(points_and_teams):
+            place = index + 1
+            if index < 3:
+                medal = medals[index]
+                text += f"{medal} <b>{place} место</b> - {team} | {points} очков\n"
+            else:
+                text += f"{place} место - {team} | {points} очков\n"
+        bot.send_message(message.chat.id, text, parse_mode="HTML")
+    except Exception as e:
+        print(e)
+        bot.send_message(message.chat.id, "К огромному сожалению вы израсходовали количество запросов. пожалуйста повторите запрос через 30 секунд <3")
+
+
 bot.polling(none_stop=True)
