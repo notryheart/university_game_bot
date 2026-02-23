@@ -1,3 +1,5 @@
+#Created by Antonov Yaroslav 23.02.2025
+
 import telebot
 from telebot import types
 import gspread
