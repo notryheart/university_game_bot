@@ -61,7 +61,7 @@ def choose_team(message):
     except Exception as e:
         bot.send_message(message.chat.id,"⚠️ Ошибка регистрации, попробуй через 5 секунд")
         print(e)
-
+#прописываем команду отправки всем пользователям нашего бота
 @bot.message_handler(commands=['broadcast'])
 def broadcast_start(message):
     if message.from_user.id != ADMIN_ID:
@@ -84,8 +84,9 @@ def send_broadcast(message):
         except:
             failed += 1
     bot.send_message(message.chat.id, f"✅ Рассылка завершена\n" f"Отправлено: {sent}\n" f"Не доставлено: {failed}")
-
+#команда для добавления очков в команда (очень длинная и состоит из нескольких часей)
 @bot.message_handler(commands=['addpoints'])
+#первая фаза, состоящая из проверки на админа
 def adding(message):
     if message.from_user.id != ADMIN_ID:
         bot.send_message(message.chat.id, "❌ У тебя нет прав.")
@@ -95,14 +96,14 @@ def adding(message):
         markup.add(types.KeyboardButton(team))
     msg = bot.send_message(message.chat.id, "Выбери команду:", reply_markup=markup)
     bot.register_next_step_handler(msg, select_team_for_points)
-
+#вторая часть, непосредственно отвечающая за добавление определенного количества очков
 def select_team_for_points(message):
     if message.text not in teams:
         return
     admin_data[message.from_user.id] = message.text
     msg = bot.send_message(message.chat.id, "Введи количество очков:", reply_markup=types.ReplyKeyboardRemove())
     bot.register_next_step_handler(msg, enter_points_amount)
-
+#добавление нашего значения в гугл таблицу + красиваое оформление вывода
 def enter_points_amount(message):
     if message.from_user.id != ADMIN_ID:
         return
@@ -122,7 +123,7 @@ def enter_points_amount(message):
     except Exception as e:
         print("ADD POINTS ERROR:", e)
         bot.send_message(message.chat.id, "ОШИБКА")
-
+# команда для вывода очков всех команд (доступна всем пользователям)
 @bot.message_handler(commands=["info"])
 def show_teams(message):
     try:
@@ -145,7 +146,7 @@ def show_teams(message):
             else:
                 text += f"{place} место - {team} | {points} очков\n"
         bot.send_message(message.chat.id, text, parse_mode="HTML")
-    except Exception as e:
+    except Exception as e: # кинул исключение, потому что в гугл апи предусмотрено конечное число запросов от пользователя
         print(e)
         bot.send_message(message.chat.id, "К огромному сожалению вы израсходовали количество запросов. пожалуйста повторите запрос через 30 секунд <3")
 
