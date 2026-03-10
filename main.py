@@ -34,13 +34,11 @@ creds = ServiceAccountCredentials.from_json_keyfile_name(
 client = gspread.authorize(creds)
 
 # Таблица регистрации пользователей
-sheet = client.open_by_key("1T6-e0zrmZKHkJ6v3xv_vq0i7hd3jT6K0Cifd4Svy2Zk").sheet1
+spreadsheet = client.open_by_key("1T6-e0zrmZKHkJ6v3xv_vq0i7hd3jT6K0Cifd4Svy2Zk")
 
-# Таблица команд: очки (col2) и жизни (col3)
-sheet_2 = client.open_by_key("12_WiTULAvKVcPXOP4bda7FSR3DUGHVHmM2ZEYme418w").sheet1
-
-# Таблица чекпоинтов (посещения)
-sheet_3 = client.open_by_key("1kwTDIUrNnpK6xfyktCBORsoG4RPw4ofdKnhTtz4pTfQ").sheet1
+sheet = spreadsheet.sheet1
+sheet_2 = spreadsheet.worksheet("Sheet1")
+sheet_3 = spreadsheet.worksheet("Sheet5")
 
 # Список команд — используется в меню и логике
 teams = ["Команда 1", "Команда 2", "Команда 3", "Команда 4",
